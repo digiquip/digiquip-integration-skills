@@ -89,7 +89,7 @@ You may also maintain a second identifier with your own `source` (for example `e
 | ------- | ---------------- |
 | Org fleet / internnummer | `source=internal_number`, `organization_id` set |
 | Your system’s primary key | Custom `source` agreed with customer, `identity` = your id |
-| Physical DigiQuip QR | `source=digiquip_qr`, `identity` = code on label |
+| Physical DigiQuip QR / NFC | `source=digiquip_qr`, `identity` = code on label/tag — see **`registry-digiquip-qr-nfc`** |
 
 ## Recommended scopes (M2M)
 

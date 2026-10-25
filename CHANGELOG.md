@@ -4,6 +4,10 @@ All notable changes to integration skills and templates in this repository are d
 
 ## Unreleased
 
+### Added
+
+- **`registry-digiquip-qr-nfc`** skill: physical QR/NFC as `digiquip_qr` identifiers, release via null `organization_id`, equipment landing licensing.
+
 ### Changed
 
 - **`registry-assets`**: recommended M2M scope checklist (identifiers `:own`, assets `:all`, including update and delete).
