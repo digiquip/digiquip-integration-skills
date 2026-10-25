@@ -43,7 +43,9 @@ Pattern A dimensions include (among others): `people`, `actions`, `asset_types`,
 
 ### Dimensions without `:own` in Logto
 
-Some dimensions do **not** have a meaningful org-tenancy scope in Logto. Effective access is typically `:{operation}:{dimension}:all` or `all:everything`. Examples called out in Registry internals include **`assets`**, **`documents`**, **`brands`**, and **`models`**—partner integrations usually receive explicit `read`/`write` scopes on the dimensions they need rather than inferring `:own`.
+Some dimensions do **not** have a meaningful org-tenancy scope in Logto on the entity itself. Effective access is typically `:{operation}:{dimension}:all` or scoped via related data. Examples include **`assets`**, **`documents`**, **`brands`**, and **`models`**.
+
+**Assets:** there is no `*:assets:own` that filters the asset table by organization. A customer’s machines are linked through **identifiers** (often `source=internal_number` with `organization_id`). See **`../registry-assets/SKILL.md`**.
 
 If your onboarding lists only `:own` scopes on a dimension that does not support `:own`, contact DigiQuip support—your client may need different scopes.
 

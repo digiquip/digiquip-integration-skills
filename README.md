@@ -8,6 +8,7 @@ Agent skills and onboarding templates for integrating with DigiQuip APIs. This r
 | ---- | ------- |
 | [`AGENTS.md`](AGENTS.md) | Entry point for coding agents working in a clone of this repo |
 | [`.agents/skills/registry-m2m/`](.agents/skills/registry-m2m/) | Registry API integration skill (auth, scopes, OpenAPI-first workflow) |
+| [`.agents/skills/registry-assets/`](.agents/skills/registry-assets/) | Assets: global equipment records, org access via identifiers |
 | [`templates/customer-onboarding.md`](templates/customer-onboarding.md) | Per-customer checklist (scopes, orgs, environments)—fill in locally; do not commit secrets |
 | [`examples/env.example`](examples/env.example) | Environment variable names for M2M credentials |
 

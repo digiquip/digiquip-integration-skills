@@ -61,9 +61,13 @@ Check or list what this integration is allowed to do:
 
 | Field | Value |
 | ----- | ----- |
-| `source` string for your system | e.g. `erp-companyname` |
-| Example `identity` in your system | |
-| Example Registry UUID (test) | |
+| Org fleet / internnummer (`source`) | Usually `internal_number` — confirm with DigiQuip |
+| `source` for your ERP / system id | e.g. `erp-companyname` (separate from `internal_number` if both are used) |
+| Example `identity` (internnummer) | |
+| Example `identity` in your ERP | |
+| Example Registry asset UUID (test) | |
+
+For assets, the link to your organization is the **identifier** (with `type=asset` and `organization_id`), not an owner field on the asset. See skill **`registry-assets`** in this repository.
 
 ## Operational notes
 

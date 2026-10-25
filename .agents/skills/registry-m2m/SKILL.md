@@ -88,6 +88,8 @@ Prefer **identifiers** (`source` + `identity` pointing at a Registry UUID) to ti
 
 Create and resolve identifiers within the scopes you were granted. Use stable `source` values agreed with the customer (often their system name).
 
+**Assets are special:** equipment does not belong to an organization on the asset record. Customer fleet access uses identifiers (typically `source=internal_number`). Read **`registry-assets/SKILL.md`** before implementing asset sync or org-scoped equipment lists.
+
 ### Data quality mindset
 
 The Registry is a **passive system of record**: allow incremental data entry, use external IDs for stable links, and expect enrichment over time—not perfect upfront records.

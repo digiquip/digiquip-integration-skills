@@ -6,9 +6,10 @@ Read and follow **`.agents/skills/`** when building or maintaining integrations 
 
 | Skill | Path | When |
 | ----- | ---- | ---- |
-| **`registry-m2m`** | `.agents/skills/registry-m2m/` | Any Registry integration: M2M auth, scopes, REST calls, identifiers, pagination |
+| **`registry-m2m`** | `.agents/skills/registry-m2m/` | Any Registry integration: M2M auth, scopes, REST calls, pagination |
+| **`registry-assets`** | `.agents/skills/registry-assets/` | Equipment (assets): no org owner on asset, fleet via identifiers (`internal_number`) |
 
-Start with **`registry-m2m/SKILL.md`**. Use **`registry-m2m/scopes.md`** for authorization semantics. Use **`templates/customer-onboarding.md`** for customer-specific scopes and organization IDs (local copy; no secrets in git).
+Start with **`registry-m2m/SKILL.md`**. When the work involves **assets or equipment fleets**, also read **`registry-assets/SKILL.md`**. Use **`registry-m2m/scopes.md`** for authorization semantics. Use **`templates/customer-onboarding.md`** for customer-specific scopes and organization IDs (local copy; no secrets in git).
 
 ## Sources of truth
 
