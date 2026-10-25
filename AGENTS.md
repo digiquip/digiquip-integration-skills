@@ -1,0 +1,34 @@
+# Agent instructions
+
+Read and follow **`.agents/skills/`** when building or maintaining integrations against DigiQuip APIs.
+
+## Skills
+
+| Skill | Path | When |
+| ----- | ---- | ---- |
+| **`registry-m2m`** | `.agents/skills/registry-m2m/` | Any Registry integration: M2M auth, scopes, REST calls, identifiers, pagination |
+
+Start with **`registry-m2m/SKILL.md`**. Use **`registry-m2m/scopes.md`** for authorization semantics. Use **`templates/customer-onboarding.md`** for customer-specific scopes and organization IDs (local copy; no secrets in git).
+
+## Sources of truth
+
+| Topic | Where |
+| ----- | ----- |
+| Concepts (people, assets, actions, identifiers) | [digiquip.no developers](https://digiquip.no/nb/developers/) |
+| M2M token flow | [Machine-to-machine](https://digiquip.no/en/developers/machine-to-machine/) |
+| Endpoints, request/response shapes | Registry **`/openapi.json`** and **`/docs`** for the environment you target |
+| Agent guardrails and integration workflow | This repository (`.agents/skills/`) |
+
+Do **not** use the Registry **Development MCP** (`/mcp` in dq-registry) for customer integrations. Integrate only via the public REST API and the scopes provisioned in Logto.
+
+## Secrets
+
+- Store `client_id`, `client_secret`, and tokens in environment variables or a secret manager.
+- Never commit credentials, JWTs, or filled onboarding documents that contain secrets.
+- Use test environment first unless the task explicitly requires production.
+
+## When editing this repository
+
+- Keep skills concise; link to developer docs and OpenAPI instead of duplicating reference material.
+- Update **`CHANGELOG.md`** when guidance changes in a way integrators should notice.
+- Norwegian and English developer pages on digiquip.no remain the canonical human docs; skills may be English-only for maintainability.

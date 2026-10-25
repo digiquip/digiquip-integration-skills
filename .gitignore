@@ -1,0 +1,5 @@
+.env
+.env.*
+!.env.example
+**/customer-onboarding.local.md
+.DS_Store
