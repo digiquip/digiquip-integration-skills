@@ -57,6 +57,8 @@ Check or list what this integration is allowed to do:
 - [ ] Read or write identifiers
 - [ ] Other: ___________
 
+**Equipment fleet (typical):** see recommended scopes in `.agents/skills/registry-assets/SKILL.md` — identifiers `read|create|update|delete:own` plus assets `read|create|update|delete:all`, with org UUID(s) in `allowed_organizations`.
+
 ## Identifier convention
 
 | Field | Value |

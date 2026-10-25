@@ -91,13 +91,67 @@ You may also maintain a second identifier with your own `source` (for example `e
 | Your system’s primary key | Custom `source` agreed with customer, `identity` = your id |
 | Physical DigiQuip QR | `source=digiquip_qr`, `identity` = code on label |
 
-## Scopes and authorization
+## Recommended scopes (M2M)
 
-- Asset API access is governed by **`read` / `create` / `update` / `delete` scopes on `assets`** (and related dimensions)—see **`registry-m2m/scopes.md`** and your onboarding doc.
-- Logto does **not** issue `*:assets:own` with org filtering on the asset table. “Our assets” in product language means **assets reachable through our identifiers** (and endpoints that filter that way), not “assets where `organization_id` = us”.
-- **Identifier** writes often require **`organization_id`** when your token uses `:own` identifier scopes—plan creates so the org on the identifier matches an org in `allowed_organizations`.
+Provision scopes in Logto on the customer’s M2M application. The token must also list the customer’s Registry **organization UUID(s)** in **`allowed_organizations`** when using `:own` on identifiers—without that, org-scoped identifier access is empty.
 
-When a call returns **403**, check both asset scopes and identifier scopes before widening access.
+Logto does **not** issue `*:assets:own`. Only **`:all`** exists on the `assets` dimension. Org-specific “ownership” of equipment is always through **identifiers** (`:own` on `identifiers`).
+
+### Standard fleet integration (one org, internnummer)
+
+Use this as the default profile when an integration creates assets, links them with `internal_number`, lists the org fleet, and maintains those links over time.
+
+| Scope | Why you need it |
+| ----- | ---------------- |
+| `read:identifiers:own` | List and look up identifiers for your org (including `internal_number`); org-nested routes such as `GET /organizations/{id}/identifiers` |
+| `create:identifiers:own` | Create the `internal_number` (and other org-scoped) links to assets |
+| `update:identifiers:own` | Change identifier fields (e.g. correct `identity`, metadata) without recreating the asset |
+| `delete:identifiers:own` | Remove an org’s link to an asset (does not delete the global asset row) |
+| `read:assets:all` | `POST /assets/find` (read path), `POST /assets/find_by_serial_number`, and other asset reads that call the assets dimension |
+| `create:assets:all` | `POST /assets/find?create=true`, `POST /assets/`, merge flows that require `create:assets` |
+| `update:assets:all` | `PUT` / `PATCH` on assets when you change serial number, status, asset type, etc. |
+| `delete:assets:all` | Retire or remove asset records when your process requires Registry deletes (uncommon for typical fleet sync—confirm with DigiQuip) |
+
+Copy-paste checklist for onboarding docs:
+
+```text
+read:identifiers:own
+create:identifiers:own
+update:identifiers:own
+delete:identifiers:own
+read:assets:all
+create:assets:all
+update:assets:all
+delete:assets:all
+```
+
+### Often needed alongside assets
+
+| Scope | When |
+| ----- | ---- |
+| `read:asset_types:own` or `read:asset_types:all` | Search catalog, validate brand/model before find/create |
+| `create:asset_types:all` | `POST /assets/find?create=true` may create a new asset type when none matches—confirm whether `:own` on asset types is enough for your org |
+
+Asset types use organization junction tenancy (`:own` is valid). They are separate from the asset row.
+
+### Broader access (unusual for a single customer)
+
+| Scope | Effect |
+| ----- | ------ |
+| `read:identifiers:all` / `create:identifiers:all` / … | Cross-tenant identifier access—only for hub or operator-style clients |
+| `all:everything` | Internal-style; not a default for partners |
+
+DigiQuip should narrow this list per customer; do not request `delete:assets:all` or `:all` identifier scopes unless the use case requires it.
+
+### Which layer answers “is this our machine?”
+
+| Question | Enforced by |
+| -------- | ----------- |
+| May this client touch this **identifier** row for our org? | `*:identifiers:own` + `allowed_organizations` + `identifiers.organization_id` |
+| May this client **read/create/update/delete** the global **asset**? | `*:assets:all` (and valid token on routes that only check authentication today) |
+| Does this asset appear in **our fleet list**? | Identifier link (`internal_number` + org), not an asset scope |
+
+When a call returns **403**, check identifier scopes and `allowed_organizations` first for org-link operations; check `*:assets:all` for find/create/update/delete on the asset itself. See **`registry-m2m/scopes.md`** for general scope syntax.
 
 ## Common agent mistakes
 

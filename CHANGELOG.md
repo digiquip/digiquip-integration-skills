@@ -4,6 +4,10 @@ All notable changes to integration skills and templates in this repository are d
 
 ## Unreleased
 
+### Changed
+
+- **`registry-assets`**: recommended M2M scope checklist (identifiers `:own`, assets `:all`, including update and delete).
+
 ## 0.2.0 — 2026-10-25
 
 ### Added
