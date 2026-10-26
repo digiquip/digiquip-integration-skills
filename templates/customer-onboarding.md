@@ -11,14 +11,19 @@ Copy to e.g. `docs/digiquip-onboarding.md` and add that path to `.gitignore` if 
 | Customer / project name | |
 | Contact at DigiQuip | |
 | Date provisioned | |
+| API terms acknowledged (see [API and integration terms](https://digiquip.no/en/legal/api-terms/)) | yes / date |
 | Integration purpose (1–2 sentences) | |
 
 ## Environments
 
-| Environment | Registry base URL | Use M2M credentials |
-| ----------- | ----------------- | --------------------- |
-| Test | `https://test-registry.kvipp.io` | Test client (yes/no) |
-| Production | `https://registry.kvipp.io` | Prod client (yes/no) |
+**Staging** and **test** mean the same non-production stack (`test-registry.kvipp.io`). Production is separate.
+
+| Environment | Registry API (HTTPS) | Logto token URL (`POST …/oidc/token`) | OAuth `resource` (audience) | M2M client |
+| ----------- | -------------------- | ------------------------------------- | --------------------------- | ---------- |
+| Staging / test | `https://test-registry.kvipp.io` | e.g. `https://devlogin.digiquip.com/oidc/token` | e.g. `http://test-registry.kvipp.io` | Test client (yes/no) |
+| Production | `https://registry.kvipp.io` | e.g. `https://login.digiquip.com/oidc/token` | e.g. `https://registry.kvipp.io` | Prod client (yes/no) |
+
+Logto **tenant URL** (console / Management API): staging `https://k9rv6k.logto.app`, production `https://4wgi1e.logto.app` — same tenant as the custom domain. DigiQuip may reference either hostname; use the token URL and `resource` from the table above unless support specifies otherwise.
 
 ## Logto M2M application
 
@@ -26,7 +31,8 @@ Copy to e.g. `docs/digiquip-onboarding.md` and add that path to `.gitignore` if 
 | ----- | ------------------------- |
 | Client ID | e.g. `.env` → `DIGIQUIP_CLIENT_ID` |
 | Client secret | e.g. secret manager / `.env` |
-| Token resource (`resource=` in token request) | |
+| Token endpoint | e.g. `.env` → `DIGIQUIP_TOKEN_ENDPOINT` |
+| Token resource (`resource=` in token request) | e.g. `.env` → `DIGIQUIP_TOKEN_RESOURCE` |
 | Notes from DigiQuip | |
 
 ## Scopes granted
@@ -39,7 +45,7 @@ Paste the exact scope string or list from DigiQuip:
 
 ### Allowed organizations (`:own` / tenancy)
 
-Registry organization UUIDs this client may access:
+Registry **organization UUIDs** this client may access (DigiQuip provisions these—e.g. one UUID per customer org such as a rental company). Required for fleet/identifier work and `:own` scopes:
 
 ```text
 (one UUID per line)

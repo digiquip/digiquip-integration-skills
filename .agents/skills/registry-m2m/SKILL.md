@@ -12,19 +12,23 @@ Integrate through the **public REST API** only. Treat OpenAPI as the contract; t
 
 ## Before you write code
 
-1. Confirm **environment** (test vs production) and base URL—see README in this repository.
-2. Load the customer onboarding checklist (local copy of `templates/customer-onboarding.md`): **scopes**, **allowed organization IDs**, and intended use cases.
+1. Confirm **environment** and base URL—see **`reference.md`**. **Staging**, **test**, and **`test-registry.kvipp.io`** are the **same** non-production stack; production is `registry.kvipp.io` only.
+2. Load the customer onboarding checklist (local copy of `templates/customer-onboarding.md`): **token URL**, **`resource` (audience)**, **scopes**, **organization UUID(s)**, and intended use cases.
 3. Fetch **`{base_url}/openapi.json`** and use **`{base_url}/docs`** to verify paths, methods, query parameters, and schemas. Do not invent endpoints.
 4. Implement **token acquisition** and refresh before any data calls.
 
 Human-oriented domain docs: [DigiQuip developers](https://digiquip.no/en/developers/) (structure, identifiers, organizations, actions, asset types and assets).
 
+**Contract:** M2M access is governed by the customer’s main agreement plus [API and integration terms](https://digiquip.no/en/legal/api-terms/) (remediation of faulty registry writes, including third-party compensation, may be invoiced). Do not promise unlimited free cleanup to partners.
+
 ## Authentication (Logto client credentials)
 
-Exchange M2M credentials for an access token:
+Exchange M2M credentials for an access token at **`{logto_host}/oidc/token`**. Use the **token URL** and **`resource=`** from onboarding—see **`reference.md`** (staging vs production differ; staging audience is usually `http://test-registry.kvipp.io`, not the production URL).
+
+Example (production-shaped; do not copy into staging without changing host and `resource`):
 
 ```http
-POST https://auth.digiquip.no/oidc/token
+POST https://login.digiquip.com/oidc/token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=client_credentials
@@ -33,7 +37,9 @@ grant_type=client_credentials
 &resource=https://registry.kvipp.io
 ```
 
-Use the **`resource`** value DigiQuip specified for your environment (production Registry audience is typically `https://registry.kvipp.io`; test may differ—confirm in onboarding).
+Logto has **two hostnames per environment** (custom domain and `*.logto.app` tenant URL). They are the same tenant; DigiQuip may give you either for admin work. For Registry API tokens, use the pair documented in onboarding—often the **custom domain** token endpoint so the JWT matches what Registry expects.
+
+You normally **do not** need `…/oidc` discovery or `…/oidc/jwks` unless you validate JWTs yourself; Registry validates the bearer token on each API call.
 
 Send API requests with:
 
@@ -58,7 +64,7 @@ Read **`scopes.md`** in this skill directory for:
 **Rules for agents:**
 
 - Assume **least privilege**. Only call endpoints your provisioned scopes allow.
-- For **`:own`** (and implicit own-read where applicable), restrict reads and writes to organizations listed in **`allowed_organizations`** on the token or in the customer onboarding doc.
+- For **`:own`** (and implicit own-read where applicable), restrict reads and writes to organizations listed in **`allowed_organizations`** on the token and in the customer onboarding doc (Registry **organization UUIDs**—DigiQuip provisions these, e.g. per legal entity or fleet).
 - Do not assume `all:everything` unless onboarding explicitly says so.
 - **403** usually means missing scope or wrong org context—not a bug to “work around” by trying another path.
 
@@ -105,7 +111,7 @@ The Registry is a **passive system of record**: allow incremental data entry, us
 
 ## Testing
 
-- Develop and test against **test-registry** until explicitly approved for production.
+- Develop and test against **`https://test-registry.kvipp.io`** (staging = test) until explicitly approved for production.
 - Use realistic but non-production data.
 - After code changes, re-run against OpenAPI: agents often drift path or field names.
 
@@ -113,7 +119,7 @@ The Registry is a **passive system of record**: allow incremental data entry, us
 
 | Symptom | Likely cause |
 | ------- | ------------- |
-| 401 on API | Expired token, wrong `resource`, or malformed `Authorization` header |
+| 401 on API | Expired token, wrong `resource` / audience, wrong environment (staging token on prod Registry), token from wrong Logto hostname, or malformed `Authorization` header |
 | 403 | Missing scope, or `:own` access outside `allowed_organizations` |
 | 404 | Wrong UUID, wrong path, or trailing slash mismatch |
 | 409 | Unique constraint or duplicate identifier—make the operation idempotent |

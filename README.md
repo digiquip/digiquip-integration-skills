@@ -33,9 +33,11 @@ If you only copy one folder, copy **`.agents/skills/registry-m2m/`** and keep `s
 
 ## Registry environments
 
+**Staging** and **test** refer to the **same** non-production environment (`test-registry.kvipp.io`). See [`.agents/skills/registry-m2m/reference.md`](.agents/skills/registry-m2m/reference.md) for Logto hostnames, token URLs, and OAuth `resource` values.
+
 | Environment | Base URL | OpenAPI |
 | ----------- | -------- | ------- |
-| Test | `https://test-registry.kvipp.io` | `https://test-registry.kvipp.io/openapi.json` |
+| Staging / test | `https://test-registry.kvipp.io` | `https://test-registry.kvipp.io/openapi.json` |
 | Production | `https://registry.kvipp.io` | `https://registry.kvipp.io/openapi.json` |
 
 Interactive docs: append `/docs` to the base URL.
@@ -43,6 +45,8 @@ Interactive docs: append `/docs` to the base URL.
 Token endpoint and M2M setup: [Machine-to-machine access](https://digiquip.no/en/developers/machine-to-machine/). Contact [support@digiquip.no](mailto:support@digiquip.no) for credentials.
 
 ## Versioning
+
+Current release: **v0.3.0** (see [CHANGELOG.md](CHANGELOG.md)).
 
 Tag releases when integration guidance changes (scope model, auth URLs, or breaking API conventions). Pin your integration project to a tag when you need stable agent instructions.
 

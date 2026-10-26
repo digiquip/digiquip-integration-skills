@@ -28,7 +28,7 @@ Do **not** use the Registry **Development MCP** (`/mcp` in dq-registry) for cust
 
 - Store `client_id`, `client_secret`, and tokens in environment variables or a secret manager.
 - Never commit credentials, JWTs, or filled onboarding documents that contain secrets.
-- Use test environment first unless the task explicitly requires production.
+- Use **staging / test** (`https://test-registry.kvipp.io`) first unless the task explicitly requires production. Staging and test are the same environment—see **`registry-m2m/reference.md`** for Logto hostnames and OAuth `resource` values.
 
 ## When editing this repository
 
