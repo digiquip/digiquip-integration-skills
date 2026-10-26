@@ -13,6 +13,7 @@ All notable changes to integration skills and templates in this repository are d
 
 - **`registry-assets`**: recommended M2M scope checklist (identifiers `:own`, assets `:all`, including update and delete); cross-link to catalog/asset type skill.
 - **`registry-m2m/scopes.md`**: brands and models are read-only for partners; no catalog create scopes on M2M.
+- **`registry-catalog-and-asset-types`** / **`scopes.md`**: clarify `:all` (not `:own`) for catalog; resolve/preview vs `/brands/`; no implicit catalog read from other dimensions.
 
 ## 0.2.0 — 2026-10-25
 

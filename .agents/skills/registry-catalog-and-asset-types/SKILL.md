@@ -85,14 +85,22 @@ Mirror the **order** used in identity session: **brand → model → asset type*
 
 | Scope | Typical need |
 | ----- | ------------ |
-| `read:brands:all` | Catalog brand search |
-| `read:models:all` | Model search under a brand |
-| `read:asset_types:own` or `read:asset_types:all` | List, resolve, by_brand_and_model |
+| `read:brands:all` | `GET /brands/` — search, similar, `only_verified`, pagination, brand `id` |
+| `read:models:all` | `GET /brands/{brand_id}/models/` — model search under a locked brand |
+| `read:asset_types:own` or `read:asset_types:all` | `GET /asset_types/`, by id, org links — **not** a substitute for catalog read |
 | `create:asset_types:…` | Only if onboarding allows creating types after catalog match |
 
 **Do not request** `create:brands:all`, `update:brands:all`, `create:models:all`, or similar for partner integrations—they are not issued for catalog maintenance.
 
+**`:own` on `brands` or `models`:** Registry treats these as **global** dimensions (no org filter on catalog rows). Even if a token contained `read:brands:own`, it would not limit results to one customer. Partner tokens should use **`read:brands:all`** and **`read:models:all`** only. **`read:people:own`** or **`read:asset_types:own`** does **not** grant catalog access—you need explicit `read:brands` / `read:models`.
+
 Asset types may use `:own` (org junction) or `:all` depending on customer; confirm in **`templates/customer-onboarding.md`**.
+
+### Resolve helpers vs catalog API
+
+Some routes under `/asset_types/` only require a **valid bearer token** (authentication), not `read:brands`—for example **`GET /asset_types/resolve`**, **`GET /asset_types/create_preview`**, and the legacy string lists **`GET /asset_types/brands`** / **`…/brands/{brand}/models`**.
+
+Use them for quick match/preview when you already have brand + model text. For **guided catalog search** (verified flag, catalog UUIDs, alternative names, similar-name thresholds), call **`/brands/`** and **`/brands/{brand_id}/models/`** with **`read:brands:all`** / **`read:models:all`**.
 
 ## Common agent mistakes
 
