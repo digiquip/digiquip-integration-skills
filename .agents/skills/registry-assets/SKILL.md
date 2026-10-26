@@ -56,10 +56,13 @@ Your stable business key is often **`(source, identity)`** or **`(organization_i
 
 ### 1. Resolve or create the asset
 
-Assets need an **asset type** first. Common paths:
+Assets need an **`asset_type_id`** (brand + model in the Registry sense). **Search the shared catalog first**, then resolve or create an asset type—see **`registry-catalog-and-asset-types`**. Partners do **not** create catalog brands or models via Registry; missing catalog rows require DigiQuip stewardship or an identity-session product flow.
 
-- **`POST /assets/find`** with serial number, brand, and model (see developer docs). With `create=true`, Registry can create asset type and asset when missing.
-- Explicit **`POST /asset_types`** then **`POST /assets`** when you manage IDs yourself.
+Common paths:
+
+- **Preferred for data quality:** catalog search → `GET /asset_types/resolve` or `create_preview` → **`POST /assets`** with `asset_type_id`.
+- **`POST /asset_types`** then **`POST /assets`** when onboarding grants `create:asset_types` and catalog already matches.
+- **`POST /assets/find?create=true`** — convenient but can create types without the same controls as search-first; use only when DigiQuip explicitly accepts that trade-off for your sync.
 
 Always confirm exact paths and bodies in OpenAPI for your environment.
 
@@ -129,8 +132,9 @@ delete:assets:all
 
 | Scope | When |
 | ----- | ---- |
-| `read:asset_types:own` or `read:asset_types:all` | Search catalog, validate brand/model before find/create |
-| `create:asset_types:all` | `POST /assets/find?create=true` may create a new asset type when none matches—confirm whether `:own` on asset types is enough for your org |
+| `read:brands:all`, `read:models:all` | Catalog search (read-only; no catalog writes on M2M) |
+| `read:asset_types:own` or `read:asset_types:all` | Resolve/list asset types after brand/model are known |
+| `create:asset_types:all` or `:own` | `POST /asset_types` when allowed—after **`registry-catalog-and-asset-types`** search rules |
 
 Asset types use organization junction tenancy (`:own` is valid). They are separate from the asset row.
 
@@ -173,6 +177,7 @@ When a call returns **403**, check identifier scopes and `allowed_organizations`
 
 ## Related
 
+- **`registry-catalog-and-asset-types`** — merke/modell catalog, asset type resolution, identity session funnel
 - **`registry-m2m`** — token, scopes, OpenAPI-first workflow
 - **`registry-m2m/reference.md`** — environment URLs
 - Repository **`templates/customer-onboarding.md`** — org UUIDs and scope list

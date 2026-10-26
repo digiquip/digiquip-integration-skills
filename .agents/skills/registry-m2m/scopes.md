@@ -47,6 +47,8 @@ Some dimensions do **not** have a meaningful org-tenancy scope in Logto on the e
 
 **Assets:** there is no `*:assets:own` that filters the asset table by organization. A customer’s machines are linked through **identifiers** (often `source=internal_number` with `organization_id`). See **`../registry-assets/SKILL.md`**.
 
+**Brands and models (catalog):** the shared manufacturer/model catalog is **read-only** on standard partner M2M tokens (`read:brands:all`, `read:models:all`). DigiQuip does **not** issue `create` / `update` / `delete` on catalog dimensions to integrators. New catalog rows go through controlled product flows (Operator **equipment identity session**), not direct Registry catalog writes. See **`../registry-catalog-and-asset-types/SKILL.md`**.
+
 If your onboarding lists only `:own` scopes on a dimension that does not support `:own`, contact DigiQuip support—your client may need different scopes.
 
 ## Common dimensions (not exhaustive)
@@ -56,7 +58,8 @@ Use OpenAPI and your onboarding doc as the final list for **your** client.
 | Dimension | Typical integrator use |
 | --------- | ---------------------- |
 | `people` | Workers, profiles, org membership |
-| `asset_types` | Make/model catalog |
+| `asset_types` | Equipment type rows (brand + model); distinct from catalog entities |
+| `brands` / `models` | Shared catalog (read for partners) |
 | `assets` | Serialised equipment |
 | `actions` | Inspections, controls, performed work |
 | `identifiers` | Stable cross-system keys |
