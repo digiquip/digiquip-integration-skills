@@ -51,6 +51,8 @@ Some dimensions do **not** have a meaningful org-tenancy scope in Logto on the e
 
 If your onboarding lists only `:own` scopes on a dimension that does not support `:own`, contact DigiQuip support—your client may need different scopes.
 
+**Asset types — `create:asset_types:own`:** allows global **`POST /asset_types/`** and org **links** only for allowed orgs. Linking uses the junction (`POST …/asset_types/{id}/organizations/{organization_id}`). See **`../registry-catalog-and-asset-types/SKILL.md`**.
+
 ## Common dimensions (not exhaustive)
 
 Use OpenAPI and your onboarding doc as the final list for **your** client.
