@@ -45,11 +45,20 @@ Paste the exact scope string or list from DigiQuip:
 
 ### Allowed organizations (`:own` / tenancy)
 
-Registry **organization UUIDs** this client may access (DigiQuip provisions these—e.g. one UUID per customer org such as a rental company). Required for fleet/identifier work and `:own` scopes:
+**Not in the JWT.** Logto tokens only carry `scope` (and standard OIDC claims). Registry loads org access from **Logto: M2M app ↔ organization membership**. DigiQuip configures that in Logto; integrators verify with a Registry API call, not by decoding the token.
+
+Registry **organization UUIDs** for API paths and `organization_id` on identifiers (copy from DigiQuip onboarding):
 
 ```text
 (one UUID per line)
 ```
+
+Logto application id (client id) for this integration:
+
+```text
+```
+
+After provisioning: test e.g. `GET {registry}/organizations/{uuid}/identifiers?limit=1` with a fresh bearer token.
 
 ### Endpoints or workflows explicitly in scope
 

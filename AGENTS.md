@@ -11,7 +11,7 @@ Read and follow **`.agents/skills/`** when building or maintaining integrations 
 | **`registry-digiquip-qr-nfc`** | `.agents/skills/registry-digiquip-qr-nfc/` | Printed QR / NFC tags: `digiquip_qr` identifiers, release/adopt, equipment landing |
 | **`registry-catalog-and-asset-types`** | `.agents/skills/registry-catalog-and-asset-types/` | Merke/modell catalog (read on M2M), search-first `asset_type_id`; catalog writes only via Operator identity session |
 
-Start with **`registry-m2m/SKILL.md`**. When the work involves **assets or equipment fleets**, also read **`registry-assets/SKILL.md`**. When resolving **brand, model, or asset type** before creating equipment, read **`registry-catalog-and-asset-types/SKILL.md`**. For **physical DigiQuip QR or NFC codes**, read **`registry-digiquip-qr-nfc/SKILL.md`**. Use **`registry-m2m/scopes.md`** for authorization semantics. Use **`templates/customer-onboarding.md`** for customer-specific scopes and organization IDs (local copy; no secrets in git).
+Start with **`registry-m2m/SKILL.md`**. **Never expect organization UUIDs or `allowed_organizations` inside the M2M JWT**—Registry resolves org tenancy from Logto per API request. When the work involves **assets or equipment fleets**, also read **`registry-assets/SKILL.md`**. When resolving **brand, model, or asset type** before creating equipment, read **`registry-catalog-and-asset-types/SKILL.md`**. For **physical DigiQuip QR or NFC codes**, read **`registry-digiquip-qr-nfc/SKILL.md`**. Use **`registry-m2m/scopes.md`** for authorization semantics. Use **`templates/customer-onboarding.md`** for customer-specific scopes and organization IDs (local copy; no secrets in git).
 
 ## Sources of truth
 

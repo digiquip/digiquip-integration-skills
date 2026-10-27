@@ -31,9 +31,9 @@ Do not design an integration that requires `all:everything` unless DigiQuip expl
 | Level | Behavior (simplified) |
 | ----- | ------------------------ |
 | `:all` | Cross-tenant access on that dimension (subject to endpoint rules). |
-| `:own` | Limited to organizations in the token’s **`allowed_organizations`** list (Registry organization UUIDs). |
+| `:own` | Limited to organizations Registry resolves into **`allowed_organizations`** (see below—not a JWT claim). |
 
-M2M tokens carry `allowed_organizations` when DigiQuip scopes you to specific customers’ orgs.
+For M2M, Registry fills **`allowed_organizations`** from Logto (**application ↔ organization** membership), not from anything inside the access token.
 
 ### Implicit read on some dimensions
 
@@ -73,20 +73,21 @@ Subscription and billing dimensions (`subscriptions`, `subscription_addons`) are
 
 Partner M2M integrations should rely on:
 
-- Scopes on the token
-- `allowed_organizations` for `:own` / implicit own-read
+- **`scope`** in the JWT (the only authorization list Logto puts in the token)
+- **Logto app organization membership** (DigiQuip configures; Registry loads via Management API per request)
+- **Registry organization UUIDs** from onboarding in paths and bodies
 - API filters documented in OpenAPI (e.g. `organization_id` query parameters where supported)
 
 Do not assume you can access every organization in Registry with a narrow M2M profile.
 
 ## Checking what you have
 
-Decode the JWT payload (without verifying, for debugging only) and inspect:
+**JWT decode (debugging scopes only):** inspect `scope` — space-separated permission strings. You will **not** see `allowed_organizations` or org UUIDs in the token. That is normal.
 
-- `scope` — space-separated scopes
-- `allowed_organizations` — org UUIDs for tenancy
+**Verify org tenancy:** call Registry, e.g.  
+`GET /organizations/{registry_org_uuid}/identifiers?limit=1` with your bearer token. See **`SKILL.md`** (organization access) and **`reference.md`** (organization tenancy).
 
-In production code, rely on **403 responses** and integration tests rather than decoding tokens.
+In production code, rely on **API responses** and integration tests—not on org claims in the JWT.
 
 ## Requesting changes
 
@@ -95,4 +96,4 @@ To add a scope or organization, contact [support@digiquip.no](mailto:support@dig
 - The operation (read/create/update/delete)
 - The dimension
 - Why `:own` is enough or why `:all` is required
-- Which organization UUIDs must be in `allowed_organizations`
+- Which Registry organization UUIDs the app must access (Logto org membership for the M2M application)

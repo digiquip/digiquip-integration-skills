@@ -2,8 +2,9 @@
 name: registry-m2m
 description: |
   Integrate with the DigiQuip Registry REST API using Logto machine-to-machine
-  credentials. Use when implementing sync jobs, webhooks, or services that read or
-  write people, assets, actions, identifiers, or related Registry data.
+  credentials. Organization tenancy for :own scopes is resolved by Registry from
+  Logto app org membership—not from JWT claims. Use for sync jobs, webhooks, or
+  services that read or write people, assets, actions, identifiers, or related data.
 ---
 
 # Registry M2M integration
@@ -51,9 +52,28 @@ Tokens are short-lived. Cache the token until shortly before `expires_in` elapse
 
 Store `client_id` and `client_secret` in environment variables (see `examples/env.example`). Never commit secrets.
 
+## Organization access — NOT in the JWT
+
+**This confuses almost every new M2M integrator. Read before debugging `:own` scopes.**
+
+Logto access tokens for M2M contain only standard OIDC claims, for example `aud`, `client_id`, `exp`, `iat`, `iss`, `jti`, `scope`, and `sub`. There is **no** `allowed_organizations` claim (and no other organization list) in the token body Logto returns from `POST …/oidc/token`.
+
+| Question | Answer |
+| -------- | ------ |
+| Should we see org UUIDs when we decode the JWT? | **No.** That is expected. |
+| Is there a `resource` or query parameter to request org in the token call? | **No.** Only `grant_type`, `client_id`, `client_secret`, and `resource` (API audience). |
+| Does a new token “pick up” org after DigiQuip changes Logto? | Fetch a **new** token after provisioning, but org still will **not** appear in the JWT. Test with a **Registry API call**, not JWT decode. |
+| Where does tenancy come from? | On **each Registry request**, after JWT validation, Registry calls Logto Management API: `GET /applications/{app_id}/organizations` for M2M apps (`sub` equals `client_id`). That list becomes internal `allowed_organizations` (Logto org ids; Registry maps to Registry UUIDs). |
+| What must DigiQuip configure? | The M2M **application must be a member of the customer organization** in Logto (staging or production tenant). Scopes alone are not enough for `:own` on identifiers. |
+| How do we verify it works? | `GET {registry}/organizations/{registry_org_uuid}/identifiers?limit=1` with `Authorization: Bearer …` — or another `:own` route documented in OpenAPI. **403** or empty where data should exist → missing scope, app not in org, or wrong org UUID. |
+
+**Do not** tell customers or agents to “check `allowed_organizations` in the token.” Point them to **`reference.md`** (organization tenancy) and a concrete Registry test call.
+
+Copy Registry **organization UUID(s)** from onboarding into API paths and identifier bodies (`organization_id`). DigiQuip links the Logto app to the matching Logto organization; you do not pass org id to the token endpoint.
+
 ## Authorization (scopes)
 
-Scopes are space-separated strings on the JWT. DigiQuip provisions only what your integration needs.
+Scopes are space-separated strings in the JWT `scope` claim. DigiQuip provisions only what your integration needs.
 
 Read **`scopes.md`** in this skill directory for:
 
@@ -64,7 +84,7 @@ Read **`scopes.md`** in this skill directory for:
 **Rules for agents:**
 
 - Assume **least privilege**. Only call endpoints your provisioned scopes allow.
-- For **`:own`** (and implicit own-read where applicable), restrict reads and writes to organizations listed in **`allowed_organizations`** on the token and in the customer onboarding doc (Registry **organization UUIDs**—DigiQuip provisions these, e.g. per legal entity or fleet).
+- For **`:own`** (and implicit own-read where applicable), restrict reads and writes to organizations Registry resolves into **`allowed_organizations`** (from Logto app ↔ org membership—not from JWT claims). Use Registry **organization UUIDs** from the customer onboarding doc in URLs and payloads.
 - Do not assume `all:everything` unless onboarding explicitly says so.
 - **403** usually means missing scope or wrong org context—not a bug to “work around” by trying another path.
 
@@ -124,6 +144,8 @@ The Registry is a **passive system of record**: allow incremental data entry, us
 | 404 | Wrong UUID, wrong path, or trailing slash mismatch |
 | 409 | Unique constraint or duplicate identifier—make the operation idempotent |
 | Empty lists with 200 | Valid but no data, or org filter excludes rows—check scopes and filters |
+| “No org in JWT” after Logto change | **Not a bug.** Orgs are never in the JWT; verify Logto app org membership and call Registry |
+| 403 on `…/identifiers` with `:own` scopes | M2M app not linked to org in Logto, wrong Registry org UUID, or missing scope |
 
 ## Out of scope for this skill
 

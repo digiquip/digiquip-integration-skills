@@ -96,7 +96,7 @@ You may also maintain a second identifier with your own `source` (for example `e
 
 ## Recommended scopes (M2M)
 
-Provision scopes in Logto on the customer’s M2M application. The token must also list the customer’s Registry **organization UUID(s)** in **`allowed_organizations`** when using `:own` on identifiers—without that, org-scoped identifier access is empty.
+Provision scopes in Logto on the customer’s M2M application. For `:own` on identifiers, the M2M app must be a **member of the customer organization in Logto** (Registry resolves this server-side—org UUIDs do **not** appear in the JWT). Without that membership, org-scoped identifier access is empty. See **`registry-m2m/SKILL.md`** (organization access).
 
 Logto does **not** issue `*:assets:own`. Only **`:all`** exists on the `assets` dimension. Org-specific “ownership” of equipment is always through **identifiers** (`:own` on `identifiers`).
 

@@ -58,14 +58,52 @@ The custom domain exposes the same paths under `https://devlogin.digiquip.com/oi
 
 Use `/oidc` or `/oidc/jwks` only if you **decode or verify tokens locally** (debugging claims, custom middleware). They are not a substitute for the token endpoint.
 
-## Organization UUID
+## Organization tenancy (`:own` scopes) — not in the JWT
 
-DigiQuip provisions one or more **Registry organization UUIDs** per customer (e.g. to tie machines to “Sørby Utleie”). You need them for:
+### What integrators see in the access token
 
-- Scopes with **`:own`** tenancy (`allowed_organizations` on the token)
-- **Identifiers** that link fleet/equipment to an org (`organization_id` on identifier records)
+After `POST …/oidc/token`, decoding the JWT typically shows only:
 
-DigiQuip sends UUIDs in onboarding; copy them into `templates/customer-onboarding.md` (local). They are not secret, but they are customer-specific—do not guess them from documentation.
+`aud`, `client_id`, `exp`, `iat`, `iss`, `jti`, `scope`, `sub`
+
+There is **no** `allowed_organizations` (or equivalent) in that payload. **If org claims are missing, that is correct.**
+
+### What Registry does on each API call
+
+1. Validates the JWT (issuer, audience, signature).
+2. For M2M (`sub` == `client_id`), calls Logto Management API:  
+   **`GET /applications/{application_id}/organizations`**
+3. Builds internal **`allowed_organizations`** from that response (Logto organization ids).
+4. Maps Logto org ids to **Registry organization UUIDs** when authorizing `:own` / Pattern A reads.
+
+Partners never receive that list inside the token. There is **no** token-request parameter to add it.
+
+### What DigiQuip must configure (Logto)
+
+- M2M application created with the right **scopes**.
+- Same application **added to the customer organization** in Logto (organization membership for the app).
+
+Registry organization UUID (for API paths and `organization_id` on identifiers) is documented in onboarding. The Logto org row must correspond to that Registry org (via `logto_id` in Registry). DigiQuip ops configures membership; integrators use the UUID in API calls.
+
+### How to verify (do this instead of decoding JWT)
+
+```http
+GET https://test-registry.kvipp.io/organizations/{registry_org_uuid}/identifiers?limit=1
+Authorization: Bearer <access_token>
+```
+
+Use the staging base URL and org UUID from onboarding in test. Success (200, with or without rows) means auth + org resolution worked for that route. **403** → scopes, app not in org, or wrong org id.
+
+Fetching a new access token does not add org claims to the JWT. After Logto membership changes, get a new token **and** retest a Registry call.
+
+### Registry organization UUID
+
+DigiQuip provisions one or more **Registry organization UUIDs** per customer (e.g. to tie machines to a rental company). You need them for:
+
+- **`:own`** and implicit own-read (tenancy resolved server-side as above)
+- **Identifiers** (`organization_id` on create/list; fleet via `internal_number`)
+
+Copy UUIDs into `templates/customer-onboarding.md` (local). They are not secret, but they are customer-specific—do not guess them from documentation.
 
 ## Developer documentation (human)
 

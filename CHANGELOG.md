@@ -4,6 +4,13 @@ All notable changes to integration skills and templates in this repository are d
 
 ## Unreleased
 
+## 0.3.1 — 2026-10-27
+
+### Changed
+
+- **`registry-m2m`**: prominent **organization access — NOT in the JWT** section; Logto app org membership vs `:own` scopes; verify via Registry API, not token decode.
+- **`reference.md`**, **`scopes.md`**, **`registry-assets`**, **`customer-onboarding.md`**, **`AGENTS.md`**: align tenancy docs (remove misleading “org in JWT” guidance).
+
 ## 0.3.0 — 2026-10-26
 
 ### Added

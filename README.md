@@ -46,7 +46,7 @@ Token endpoint and M2M setup: [Machine-to-machine access](https://digiquip.no/en
 
 ## Versioning
 
-Current release: **v0.3.0** (see [CHANGELOG.md](CHANGELOG.md)).
+Current release: **v0.3.1** (see [CHANGELOG.md](CHANGELOG.md)).
 
 Tag releases when integration guidance changes (scope model, auth URLs, or breaking API conventions). Pin your integration project to a tag when you need stable agent instructions.
 
