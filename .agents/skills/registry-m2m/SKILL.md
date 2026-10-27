@@ -88,7 +88,7 @@ Read **`scopes.md`** in this skill directory for:
 - Do not assume `all:everything` unless onboarding explicitly says so.
 - **403** usually means missing scope or wrong org context—not a bug to “work around” by trying another path.
 
-Staff-style headers such as `X-Digiquip-Organization-Id` are for DigiQuip products, not typical partner M2M clients—do not use them unless DigiQuip documents otherwise for your client.
+**`X-Digiquip-Organization-Id`:** DigiQuip **first-party** apps only (e.g. Kontoret staff **impersonation** via `@digiquip/kit` `registryRequestHeaders`). It does **not** replace M2M Logto app ↔ org membership, and Kontoret does **not** send it on every request for normal users—only when impersonating. Partner M2M clients must **not** use this header unless DigiQuip documents an exception. See **`reference.md`** (DigiQuip first-party apps).
 
 ## API usage conventions
 

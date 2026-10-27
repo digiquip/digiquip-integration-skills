@@ -109,6 +109,20 @@ Use the staging base URL and org UUID from onboarding in test. Success (200, wit
 
 Fetching a new access token does not add org claims to the JWT. After Logto membership changes, get a new token **and** retest a Registry call.
 
+### DigiQuip first-party apps (Kontoret, dq-admin, …) — optional header
+
+Some DigiQuip products proxy Registry with the user’s **Logto access token** (not M2M). Tenancy for normal users comes from **Logto organization membership**, resolved by Registry the same way as for users—not from a header on every request.
+
+| Caller | `X-Digiquip-Organization-Id` | How org context works |
+| ------ | ------------------------------ | --------------------- |
+| **Partner M2M** | **Do not use** | Logto app ↔ org membership; `:own` scopes |
+| **End-user session** (typical Kontoret use) | **Not sent** | User token; Registry loads orgs from Logto; routes often include `organization_id` in path/query from OrganizationPicker |
+| **Staff impersonation** (`dq-admin`) | **Sent** when impersonating | Header = Registry org UUID or Logto org id; Registry widens `allowed_organizations` for that org only if the user has global role `dq-admin` |
+
+Implementation in DigiQuip UIs: `@digiquip/kit` **`registryRequestHeaders()`** adds `X-Digiquip-Organization-Id` **only when** `impersonating && impersonatedOrgId` (see `packages/kit/src/impersonation/headers.js`). Kontoret’s `/api/registry/*` proxy uses that helper—it is **not** the same as sending the picker org on every call.
+
+Registry docs: `SCOPE_ORGANIZATION_FILTER.md` (staff impersonation). Partner integration skills target **M2M**, not Kontoret’s user-token proxy.
+
 ### Registry organization UUID
 
 DigiQuip provisions one or more **Registry organization UUIDs** per customer (e.g. to tie machines to a rental company). You need them for:

@@ -8,6 +8,7 @@ All notable changes to integration skills and templates in this repository are d
 
 - **`registry-m2m`**: staging Logto tenant is periodically reset; M2M access there is not durable; Registry org UUIDs persist.
 - **`customer-onboarding.md`**: separate Registry organization UUID (and client id) for staging and production.
+- **`reference.md`** / **`SKILL.md`**: `X-Digiquip-Organization-Id` for staff impersonation in DigiQuip apps vs M2M; Kontoret does not send org header for normal users.
 
 ## 0.3.1 — 2026-10-27
 
