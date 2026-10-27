@@ -134,7 +134,7 @@ create:assets:all
 
 | Scope | When |
 | ----- | ---- |
-| `read:brands:all`, `read:models:all` | Catalog search (read-only; no catalog writes on M2M) |
+| *(none for catalog read)* | `GET /brands/` and model lists — any authenticated token; see **`registry-catalog-and-asset-types`** |
 | `read:asset_types:own` or `read:asset_types:all` | Resolve/list asset types after brand/model are known |
 | `create:asset_types:all` or `:own` | `POST /asset_types` when allowed—after **`registry-catalog-and-asset-types`** search rules |
 

@@ -12,6 +12,7 @@ All notable changes to integration skills and templates in this repository are d
 - **`registry-catalog-and-asset-types`**: `create:asset_types:own` vs org junction linking after `POST /asset_types/`.
 - **`registry-digiquip-qr-nfc`**: who registers codes, no issued-code allow-list, GET lookup outcomes with `:own` scopes.
 - **`registry-assets`** / **`registry-m2m/scopes.md`**: partner M2M does not get `update:assets` / `delete:assets`; shared DB; corrections via support; planned `:sub` tenancy.
+- **`registry-catalog-and-asset-types`** / **`scopes.md`**: catalog `brands` / `models` **read** needs no Logto scopes (`IMPLICIT_GLOBAL_READ_DIMENSIONS`).
 
 ## 0.3.1 — 2026-10-27
 

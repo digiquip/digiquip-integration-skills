@@ -92,7 +92,7 @@ The scope name suggests “create only inside my org,” but Registry splits **t
 
 So for a partner who already has **`create:asset_types:own`**:
 
-1. **Catalog search** (`read:brands:all`, `read:models:all`) → resolve / create_preview.
+1. **Catalog search** (`GET /brands/`, `GET /brands/{brand_id}/models/` — valid token only, no catalog read scopes) → resolve / create_preview.
 2. **`POST /asset_types/`** when no matching type exists (model in catalog, type row missing).
 3. **`POST /asset_types/{new_id}/organizations/{your_org_uuid}`** (or documented equivalent) so **Sørby Utleie** sees the type — this step is where **`:own`** bites; the org UUID must be in Logto app membership / allowed orgs.
 4. **`POST /assets/`** with `asset_type_id`, then identifiers (`internal_number`, `digiquip_qr`, …).
@@ -105,24 +105,23 @@ Manuals/documents attach to **asset types** (and assets). A type that exists glo
 
 ## Recommended scopes (M2M)
 
-| Scope | Typical need |
-| ----- | ------------ |
-| `read:brands:all` | `GET /brands/` — search, similar, `only_verified`, pagination, brand `id` |
-| `read:models:all` | `GET /brands/{brand_id}/models/` — model search under a locked brand |
-| `read:asset_types:own` or `read:asset_types:all` | `GET /asset_types/`, by id, org links — **not** a substitute for catalog read |
-| `create:asset_types:…` | Only if onboarding allows creating types after catalog match |
+| Need | Scope |
+| ---- | ----- |
+| Catalog brand/model **read** (`GET /brands/`, `GET …/models/`) | **None** — implicit global read for any authenticated token |
+| Asset types | `read:asset_types:own` or `read:asset_types:all` as onboarding lists |
+| Create type after catalog match | `create:asset_types:own` or `:all` when allowed |
 
-**Do not request** `create:brands:all`, `update:brands:all`, `create:models:all`, or similar for partner integrations—they are not issued for catalog maintenance.
+**Do not request** `read:brands:all`, `read:models:all`, `create:brands:all`, `update:brands:all`, or similar for partner integrations—catalog **read** does not require Logto read scopes; **writes** are not issued on M2M.
 
-**`:own` on `brands` or `models`:** Registry treats these as **global** dimensions (no org filter on catalog rows). Even if a token contained `read:brands:own`, it would not limit results to one customer. Partner tokens should use **`read:brands:all`** and **`read:models:all`** only. **`read:people:own`** or **`read:asset_types:own`** does **not** grant catalog access—you need explicit `read:brands` / `read:models`.
+**Catalog tenancy:** `brands` and `models` are global (no org filter). There is no meaningful `read:brands:own` product model.
 
 Asset types may use `:own` (org junction) or `:all` depending on customer; confirm in **`templates/customer-onboarding.md`**.
 
 ### Resolve helpers vs catalog API
 
-Some routes under `/asset_types/` only require a **valid bearer token** (authentication), not `read:brands`—for example **`GET /asset_types/resolve`**, **`GET /asset_types/create_preview`**, and the legacy string lists **`GET /asset_types/brands`** / **`…/brands/{brand}/models`**.
+**`/asset_types/` helpers** (`GET /asset_types/resolve`, `create_preview`, legacy brand/model string lists) also need only a **valid bearer token**.
 
-Use them for quick match/preview when you already have brand + model text. For **guided catalog search** (verified flag, catalog UUIDs, alternative names, similar-name thresholds), call **`/brands/`** and **`/brands/{brand_id}/models/`** with **`read:brands:all`** / **`read:models:all`**.
+Use helpers for quick match/preview when you already have brand + model text. For **guided catalog search** (verified flag, catalog UUIDs, alternative names, similar-name thresholds), prefer **`GET /brands/`** and **`GET /brands/{brand_id}/models/`** — same auth rule (token only).
 
 ## Common agent mistakes
 
