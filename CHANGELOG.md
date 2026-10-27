@@ -9,6 +9,8 @@ All notable changes to integration skills and templates in this repository are d
 - **`registry-m2m`**: staging Logto tenant is periodically reset; M2M access there is not durable; Registry org UUIDs persist.
 - **`customer-onboarding.md`**: separate Registry organization UUID (and client id) for staging and production.
 - **`reference.md`** / **`SKILL.md`**: `X-Digiquip-Organization-Id` for staff impersonation in DigiQuip apps vs M2M; Kontoret does not send org header for normal users.
+- **`registry-catalog-and-asset-types`**: `create:asset_types:own` vs org junction linking after `POST /asset_types/`.
+- **`registry-digiquip-qr-nfc`**: who registers codes, no issued-code allow-list, GET lookup outcomes with `:own` scopes.
 
 ## 0.3.1 — 2026-10-27
 

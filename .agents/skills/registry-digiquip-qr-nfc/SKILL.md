@@ -39,7 +39,44 @@ When a code is **connected** to equipment (or an asset type), create or update a
 | `foreign_id` | Registry UUID of the asset or asset type |
 | `organization_id` | Customer org UUID when this org “owns” the connect (see below) |
 
-**Always check whether the identifier already exists** before create (`GET /identifiers/{identity}` with `source=digiquip_qr`, or list/filter). A code is globally unique: one physical code maps to one linked entity.
+**Always check whether the identifier already exists** before create (`GET /identifiers/{identity}?source=digiquip_qr`, or list/filter). A code is globally unique: one physical code maps to one linked entity.
+
+## Who registers codes on an organization?
+
+| Approach | When |
+| -------- | ---- |
+| **Partner M2M (typical)** | You **POST** (or PATCH) the identifier when linking a physical label/NFC to an asset or asset type, with **`organization_id`** set to your Registry org UUID — same pattern as Kontoret / Stemplet connect. |
+| **DigiQuip bulk** | DigiQuip can register many codes or pre-connect on request (support / ops). Not required for every integration. |
+| **Scan-only** | Until a row exists, `qr.digiquip.com` resolve shows **not connected**; the code is still a valid printed identity once you create the identifier. |
+
+There is no separate “register org on code” API beyond writing the identifier with `source=digiquip_qr`, `identity`, `foreign_id`, `type`, and **`organization_id`**.
+
+## Does Registry validate “real issued” codes?
+
+**No central allow-list** on `POST /identifiers/`. Registry checks **uniqueness** (`identity` + `source` globally for `digiquip_qr`) and your **scopes / org write rules**. It does **not** verify that the string was minted on a DigiQuip print run.
+
+**Practical validation:**
+
+- Read the code from the **URL** (`/d/{7}` or `/nfc/{8}`) or scan; normalize (often uppercase).
+- **`GET /identifiers/{identity}?source=digiquip_qr`** before create — avoid typos that would mint a **new** row that **does not scan** on `qr.digiquip.com`.
+- Wrong identity → orphan identifier; fix by PATCH/DELETE per release rules, not by reusing the physical sticker.
+
+Format conventions: 7 alphanumeric (QR `/d/`), 8 (NFC `/nfc/`), legacy UUID (`/q/`). Case-insensitive lookup.
+
+## `GET /identifiers/{identity}?source=digiquip_qr` with `:own` scopes
+
+Query params: **`source=digiquip_qr`** required; `organization_id` / `type` are **not** required for lookup (unlike `internal_number`).
+
+| Situation | HTTP | Notes |
+| --------- | ---- | ----- |
+| **No row** (never connected, or typo) | **404** | Safe “code is free” signal for that identity string. |
+| **Row exists**, `organization_id` = **your** allowed org | **200** | Full identifier + relations. |
+| **Row exists**, `organization_id` = **another** org | **403** | Tenancy: identifiers use **DIRECT** `organization_id` filter under `:own`. |
+| **Row exists**, `organization_id` is **null** (released for adoption) | **403** with typical `:own` token | Row is visible to unrestricted readers only; you may **adopt** via PATCH with your org if you have **update:identifiers:own** and policy allows. |
+
+There is **no** 200 “empty shell” for an unregistered code — unregistered means **404**. Do not infer availability from JWT org claims (orgs are not in the token — see **`registry-m2m/SKILL.md`**).
+
+**Create:** with **`create:identifiers:own`**, **`organization_id` is required** on POST (cannot mint org-less `digiquip_qr` rows with `:own` only).
 
 Example (asset), from developer docs:
 

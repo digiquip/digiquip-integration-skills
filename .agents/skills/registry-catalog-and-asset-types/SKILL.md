@@ -81,6 +81,28 @@ Mirror the **order** used in identity session: **brand → model → asset type*
 
 `POST /assets/find?create=true` can auto-create types and assets. It is convenient for legacy sync but **weakens** the same catalog discipline as a guided search. Prefer explicit resolve → `asset_type_id` → `POST /assets/` when DigiQuip asked for controlled data quality.
 
+## `create:asset_types:own` vs `:all` (org linkage — read this before onboarding)
+
+The scope name suggests “create only inside my org,” but Registry splits **two different actions**:
+
+| Action | What it does | `:own` effect |
+| ------ | ------------ | ------------- |
+| **`POST /asset_types/`** | Creates a **global** asset type row (catalog linking on brand/model). No `organization_id` on the body. | Any client with **`create:asset_types:own`** or **`:all`** may call this — it is **not** limited to one tenant. |
+| **Link type → org** (`POST /asset_types/{id}/organizations/{organization_id}`, convert-to-org-types helpers, etc.) | Adds a row on **`organization_asset_types`** so the type appears in **that** org’s catalog in Kontoret/products. | **`:own`:** only for orgs in **`allowed_organizations`**. **`:all`:** any org. |
+
+So for a partner who already has **`create:asset_types:own`**:
+
+1. **Catalog search** (`read:brands:all`, `read:models:all`) → resolve / create_preview.
+2. **`POST /asset_types/`** when no matching type exists (model in catalog, type row missing).
+3. **`POST /asset_types/{new_id}/organizations/{your_org_uuid}`** (or documented equivalent) so **Sørby Utleie** sees the type — this step is where **`:own`** bites; the org UUID must be in Logto app membership / allowed orgs.
+4. **`POST /assets/`** with `asset_type_id`, then identifiers (`internal_number`, `digiquip_qr`, …).
+
+**`create:asset_types:all`** only changes who you may **link** (any org vs allowed orgs). It does **not** change the global nature of `POST /asset_types/`. Partners rarely need `:all` unless DigiQuip operates links on their behalf across multiple tenants.
+
+**Read:** `asset_types` supports **implicit own-read** via the junction — listing types for an org uses org-scoped routes or filters; you do not always need `read:asset_types:all` if you only consume org-linked types.
+
+Manuals/documents attach to **asset types** (and assets). A type that exists globally but is **not** linked to your org may still be wrong for product UX — always plan **create + org link** for new merke/modell pairs.
+
 ## Recommended scopes (M2M)
 
 | Scope | Typical need |
