@@ -18,6 +18,10 @@ In the Registry, an **asset** is a physical object identified mainly by **serial
 
 That is intentional. In the real world many parties relate to the same machine over its lifetime—manufacturer, importer, dealer, operating company, lessor, and others. The Registry does not try to pick one “owner” on the asset row.
 
+Because the asset table is **shared**, DigiQuip does **not** grant partner M2M clients **`update:assets`** (nor **`delete:assets`**) for routine integrations. Fields such as **serial number** and **production year** affect identity for every tenant that references the same machine; changing them after the fact is not allowed at the integrator’s discretion. **Correct values at create time** (`POST /assets/`, `POST /assets/find?create=true`, merge flows). If a row was created with wrong serial or year, the customer must **contact DigiQuip support**—do not expect `update:assets:all` on onboarding scope lists.
+
+A future **`sub`** tenancy suffix on the assets dimension (e.g. update only assets **your client created**) is planned but **not issued yet**. Until then, treat global asset fields as read-only after create.
+
 **Do not** look for `organization_id` on the asset as the way to scope your customer’s fleet. **Do not** assume `:own` scopes on the `assets` dimension behave like `people` or `actions` with Pattern A org filtering on the asset table—assets are a special case.
 
 ## How your customer’s equipment becomes visible (`:own`)
@@ -112,8 +116,8 @@ Use this as the default profile when an integration creates assets, links them w
 | `delete:identifiers:own` | Remove an org’s link to an asset (does not delete the global asset row) |
 | `read:assets:all` | `POST /assets/find` (read path), `POST /assets/find_by_serial_number`, and other asset reads that call the assets dimension |
 | `create:assets:all` | `POST /assets/find?create=true`, `POST /assets/`, merge flows that require `create:assets` |
-| `update:assets:all` | `PUT` / `PATCH` on assets when you change serial number, status, asset type, etc. |
-| `delete:assets:all` | Retire or remove asset records when your process requires Registry deletes (uncommon for typical fleet sync—confirm with DigiQuip) |
+
+Do **not** add `update:assets:all` or `delete:assets:all` for standard partner fleet sync—DigiQuip withholds asset mutation scopes on shared equipment (see **Updating global asset fields** above). Internal or operator clients are a separate provisioning decision.
 
 Copy-paste checklist for onboarding docs:
 
@@ -124,8 +128,6 @@ update:identifiers:own
 delete:identifiers:own
 read:assets:all
 create:assets:all
-update:assets:all
-delete:assets:all
 ```
 
 ### Often needed alongside assets
@@ -145,14 +147,14 @@ Asset types use organization junction tenancy (`:own` is valid). They are separa
 | `read:identifiers:all` / `create:identifiers:all` / … | Cross-tenant identifier access—only for hub or operator-style clients |
 | `all:everything` | Internal-style; not a default for partners |
 
-DigiQuip should narrow this list per customer; do not request `delete:assets:all` or `:all` identifier scopes unless the use case requires it.
+DigiQuip should narrow this list per customer; do not request `update:assets` / `delete:assets` or `:all` identifier scopes unless DigiQuip explicitly approves the use case.
 
 ### Which layer answers “is this our machine?”
 
 | Question | Enforced by |
 | -------- | ----------- |
 | May this client touch this **identifier** row for our org? | `*:identifiers:own` + `allowed_organizations` + `identifiers.organization_id` |
-| May this client **read/create/update/delete** the global **asset**? | `*:assets:all` (and valid token on routes that only check authentication today) |
+| May this client **read/create** the global **asset**? | `read:assets:all`, `create:assets:all` (partners typically **not** `update` / `delete`) |
 | Does this asset appear in **our fleet list**? | Identifier link (`internal_number` + org), not an asset scope |
 
 When a call returns **403**, check identifier scopes and `allowed_organizations` first for org-link operations; check `*:assets:all` for find/create/update/delete on the asset itself. See **`registry-m2m/scopes.md`** for general scope syntax.
@@ -166,6 +168,7 @@ When a call returns **403**, check identifier scopes and `allowed_organizations`
 | Skipping identifier after `POST /assets` | Asset exists globally but is not linked to the customer org |
 | Duplicate identifiers for the same source/identity/org | Conflicts or ambiguous lookups—search first |
 | Using only serial number as sole key across brands | Collisions—use asset type + serial or Registry UUID |
+| PATCH asset to fix serial or production year after create | Not granted on partner M2M—support ticket; future `:sub` update scope may allow self-created rows only |
 
 ## Contrasts (when reasoning about other entities)
 
