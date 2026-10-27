@@ -14,6 +14,19 @@ DigiQuip uses **staging**, **test**, and **non-production** interchangeably for 
 
 Do not point a **test/staging** M2M client at production Registry (or the reverse).
 
+### Staging Logto is reset periodically
+
+The **staging / test Logto tenant** (`devlogin.digiquip.com` / `k9rv6k.logto.app`) is **wiped on a regular schedule**. DigiQuip does not publish the interval. That is normal operations—not an incident.
+
+| What resets with Logto staging | What stays stable |
+| ------------------------------ | ----------------- |
+| M2M applications, client secrets, scopes, app ↔ org membership in Logto | **Registry organization UUID** (same org row in Registry staging DB) |
+| Users, orgs, and other Logto-only configuration in that tenant | Registry API hostname `https://test-registry.kvipp.io` |
+
+**Staging access is not permanent.** After a Logto reset, integrators need **new M2M credentials** and DigiQuip must **re-provision** the app, scopes, and Logto organization membership. Partners should not assume a staging `client_id` from last month still works.
+
+**Production Logto** is not subject to this reset pattern. Production Registry org UUIDs are separate from staging UUIDs—record both in onboarding.
+
 ## Registry API base URLs
 
 | Environment | API base (HTTPS) | OpenAPI | Swagger UI |

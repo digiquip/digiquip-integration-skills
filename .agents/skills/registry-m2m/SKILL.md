@@ -132,6 +132,7 @@ The Registry is a **passive system of record**: allow incremental data entry, us
 ## Testing
 
 - Develop and test against **`https://test-registry.kvipp.io`** (staging = test) until explicitly approved for production.
+- **Staging Logto is wiped on a schedule** (interval not fixed). M2M apps and secrets there are **not durable**; Registry **organization UUIDs** in staging are. After a reset, DigiQuip re-provisions Logto; partners get new credentials. See **`reference.md`**.
 - Use realistic but non-production data.
 - After code changes, re-run against OpenAPI: agents often drift path or field names.
 

@@ -18,10 +18,14 @@ Copy to e.g. `docs/digiquip-onboarding.md` and add that path to `.gitignore` if 
 
 **Staging** and **test** mean the same non-production stack (`test-registry.kvipp.io`). Production is separate.
 
-| Environment | Registry API (HTTPS) | Logto token URL (`POST …/oidc/token`) | OAuth `resource` (audience) | M2M client |
-| ----------- | -------------------- | ------------------------------------- | --------------------------- | ---------- |
-| Staging / test | `https://test-registry.kvipp.io` | e.g. `https://devlogin.digiquip.com/oidc/token` | e.g. `http://test-registry.kvipp.io` | Test client (yes/no) |
-| Production | `https://registry.kvipp.io` | e.g. `https://login.digiquip.com/oidc/token` | e.g. `https://registry.kvipp.io` | Prod client (yes/no) |
+| Environment | Registry API (HTTPS) | Registry org UUID | Logto token URL (`POST …/oidc/token`) | OAuth `resource` (audience) | M2M client provisioned |
+| ----------- | -------------------- | ----------------- | ------------------------------------- | --------------------------- | ---------------------- |
+| Staging / test | `https://test-registry.kvipp.io` | *(fill in—Registry staging)* | e.g. `https://devlogin.digiquip.com/oidc/token` | e.g. `http://test-registry.kvipp.io` | yes / no / date |
+| Production | `https://registry.kvipp.io` | *(fill in—Registry production)* | e.g. `https://login.digiquip.com/oidc/token` | e.g. `https://registry.kvipp.io` | yes / no / date |
+
+**DigiQuip:** always record **both** Registry organization UUIDs. Staging and production are different tenants and often different UUIDs for the same customer name.
+
+**Staging Logto** is reset on a regular schedule (not durable). Re-provision M2M app, scopes, and app ↔ org membership after a reset; **Registry org UUID in staging stays the same.**
 
 Logto **tenant URL** (console / Management API): staging `https://k9rv6k.logto.app`, production `https://4wgi1e.logto.app` — same tenant as the custom domain. DigiQuip may reference either hostname; use the token URL and `resource` from the table above unless support specifies otherwise.
 
@@ -47,18 +51,27 @@ Paste the exact scope string or list from DigiQuip:
 
 **Not in the JWT.** Logto tokens only carry `scope` (and standard OIDC claims). Registry loads org access from **Logto: M2M app ↔ organization membership**. DigiQuip configures that in Logto; integrators verify with a Registry API call, not by decoding the token.
 
-Registry **organization UUIDs** for API paths and `organization_id` on identifiers (copy from DigiQuip onboarding):
+Registry **organization UUID** (for API paths and `organization_id` on identifiers)—**fill in both environments**:
+
+| Environment | Registry organization UUID |
+| ----------- | ------------------------ |
+| Staging / test | |
+| Production | |
+
+Additional org UUIDs (if the client may access more than one tenant):
 
 ```text
-(one UUID per line)
+(optional: one UUID per line, note staging vs production)
 ```
 
-Logto application id (client id) for this integration:
+Logto M2M application id (client id)—**per environment** (staging credentials do not survive Logto resets):
 
-```text
-```
+| Environment | Client ID (`sub` / `client_id`) |
+| ----------- | ------------------------------- |
+| Staging / test | |
+| Production | |
 
-After provisioning: test e.g. `GET {registry}/organizations/{uuid}/identifiers?limit=1` with a fresh bearer token.
+After provisioning: test e.g. `GET {registry}/organizations/{uuid}/identifiers?limit=1` with a fresh bearer token for **that** environment’s UUID and credentials.
 
 ### Endpoints or workflows explicitly in scope
 
@@ -72,7 +85,7 @@ Check or list what this integration is allowed to do:
 - [ ] Read or write identifiers
 - [ ] Other: ___________
 
-**Equipment fleet (typical):** see recommended scopes in `.agents/skills/registry-assets/SKILL.md` — identifiers `read|create|update|delete:own` plus assets `read|create|update|delete:all`, with org UUID(s) in `allowed_organizations`.
+**Equipment fleet (typical):** see recommended scopes in `.agents/skills/registry-assets/SKILL.md` — identifiers `read|create|update|delete:own` plus assets `read|create|update|delete:all`, with Logto app ↔ org membership for the Registry org UUID above.
 
 ## Identifier convention
 
