@@ -4,6 +4,8 @@ All notable changes to integration skills and templates in this repository are d
 
 ## Unreleased
 
+## 0.3.2 — 2026-10-27
+
 ### Changed
 
 - **`registry-m2m`**: staging Logto tenant is periodically reset; M2M access there is not durable; Registry org UUIDs persist.
