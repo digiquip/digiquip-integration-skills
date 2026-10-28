@@ -81,11 +81,14 @@ Check or list what this integration is allowed to do:
 - [ ] Write people
 - [ ] Read assets / asset types
 - [ ] Write assets / asset types
+- [ ] Upload or list documents (manuals, files on assets / asset types)
 - [ ] Read or write actions
 - [ ] Read or write identifiers
 - [ ] Other: ___________
 
-**Equipment fleet (typical):** see recommended scopes in `.agents/skills/registry-assets/SKILL.md` — identifiers `read|create|update|delete:own` plus assets `read|create|update|delete:all`, with Logto app ↔ org membership for the Registry org UUID above.
+**Equipment fleet (typical):** see `.agents/skills/registry-assets/SKILL.md` — identifiers `read|create|update|delete:own` plus assets `read|create:all` only (DigiQuip does **not** grant partner `update:assets` / `delete:assets`). Logto app ↔ org membership for the Registry org UUID above.
+
+**Documents (typical):** no `read:documents:*` or `create:documents:all` — nested upload uses `create:assets:all` and/or `create:asset_types:own`; optional `update|delete:asset_types:own` for metadata/delete. See `.agents/skills/registry-documents/SKILL.md`.
 
 ## Identifier convention
 

@@ -39,19 +39,23 @@ For M2M, Registry fills **`allowed_organizations`** from Logto (**application �
 
 For several **Pattern A** dimensions, authenticated callers may **read** within their allowed organizations even without an explicit `read:{dimension}:own` scope—but access is still bounded by `allowed_organizations`. Writes always require the appropriate `create` / `update` / `delete` scope.
 
-Pattern A dimensions include (among others): `people`, `actions`, `asset_types`, `identifiers`, `groups`, `checklists`, `organizations`, `skills`, `acquired_skills`, `lessons`, `policies`, `authorities`, and related organization-scoped data.
+Pattern A dimensions with **implicit own read** include (among others): `people`, `actions`, **`documents`**, `identifiers`, `groups`, `checklists`, `organizations`, `skills`, `acquired_skills`, `lessons`, `policies`, `authorities`, and related organization-scoped data. Logto does **not** issue `read:documents:own`; Registry applies implicit read on **`documents.organization_id`**.
+
+**Global catalog read** (any authenticated token, no org filter on read): **`asset_types`**, **`brands`**, **`models`** — `IMPLICIT_GLOBAL_READ_DIMENSIONS`. Junction / explicit scopes still apply on **asset_types** writes and org portfolio routes.
 
 ### Dimensions without `:own` in Logto
 
-Some dimensions do **not** have a meaningful org-tenancy scope in Logto on the entity itself. Effective access is typically `:{operation}:{dimension}:all` or scoped via related data. Examples include **`assets`**, **`documents`**, **`brands`**, and **`models`**.
+Some dimensions do **not** have a meaningful org-tenancy scope in Logto on the entity itself. Effective access is typically `:{operation}:{dimension}:all` or scoped via related data. Examples include **`assets`** and bare **`/documents/`** steward writes. Nested document **writes** on assets / asset types use **parent-gate** (see **`../registry-documents/SKILL.md`**), not `create:documents:all`.
 
 **Assets:** there is no `*:assets:own` that filters the asset table by organization. A customer’s machines are linked through **identifiers** (often `source=internal_number` with `organization_id`). Logto may expose `update:assets:all` / `delete:assets:all`, but **DigiQuip does not grant them to partner M2M**—assets are a shared global table; serial number and production year must be correct at **create**, and corrections go through **support** until a planned **`sub`** tenancy (update only what the client created) exists. See **`../registry-assets/SKILL.md`**.
 
-**Brands and models (catalog):** the shared manufacturer/model catalog is **read-only** for partners. **Any valid bearer token** may call **`GET`** on `/brands/` and `/brands/{brand_id}/models/` — Registry **`IMPLICIT_GLOBAL_READ_DIMENSIONS`**; you do **not** need **`read:brands:all`** or **`read:models:all`** on the Logto app (those scopes are not part of standard M2M onboarding). Catalog data is global (no org filter). DigiQuip does **not** issue **`create` / `update` / `delete`** on catalog dimensions to integrators. New catalog rows go through controlled product flows (Operator **equipment identity session**), not direct Registry catalog writes. See **`../registry-catalog-and-asset-types/SKILL.md`**.
+**Brands, models, and asset types (catalog read):** the shared manufacturer/model catalog and **global asset type rows** are **read-only** for partners on **`GET`**. Registry **`IMPLICIT_GLOBAL_READ_DIMENSIONS`** covers **`brands`**, **`models`**, and **`asset_types`** — you do **not** need **`read:brands:all`**, **`read:models:all`**, or **`read:asset_types:all`** for standard catalog/type discovery. Org **portfolio** and junction writes still use **`read|create:asset_types:own`** (or `:all`). DigiQuip does **not** issue **`create` / `update` / `delete`** on **brands/models** to integrators. New catalog rows go through controlled product flows (Operator **equipment identity session**). See **`../registry-catalog-and-asset-types/SKILL.md`**.
 
 If your onboarding lists only `:own` scopes on a dimension that does not support `:own`, contact DigiQuip support—your client may need different scopes.
 
-**Asset types — `create:asset_types:own`:** allows global **`POST /asset_types/`** and org **links** only for allowed orgs. Linking uses the junction (`POST …/asset_types/{id}/organizations/{organization_id}`). See **`../registry-catalog-and-asset-types/SKILL.md`**.
+**Asset types — `create:asset_types:own`:** allows global **`POST /asset_types/`** and org **links** only for allowed orgs. Linking uses the junction (`POST …/asset_types/{id}/organizations/{organization_id}`). Also parent-gates **`POST …/asset_types/{id}/documents`** (manual uploads). See **`../registry-catalog-and-asset-types/SKILL.md`**.
+
+**Documents — partner M2M:** **read** uses implicit own (no `read:documents` in Logto). **Nested create/update/delete** parent-gates on **`assets`** / **`asset_types`**. Do not rely on **`create:documents:all`** for nested upload. See **`../registry-documents/SKILL.md`**.
 
 ## Common dimensions (not exhaustive)
 
@@ -68,6 +72,7 @@ Use OpenAPI and your onboarding doc as the final list for **your** client.
 | `organizations` | Tenants, metadata (within granted access) |
 | `groups` | Groupings, equipment categories (aliases may apply) |
 | `checklists` | Checklist templates and structure |
+| `documents` | Files on assets/types; implicit read; nested writes via parent scopes |
 
 Subscription and billing dimensions (`subscriptions`, `subscription_addons`) are usually restricted and not part of standard equipment/person sync integrations.
 

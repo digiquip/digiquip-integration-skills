@@ -99,17 +99,17 @@ So for a partner who already has **`create:asset_types:own`**:
 
 **`create:asset_types:all`** only changes who you may **link** (any org vs allowed orgs). It does **not** change the global nature of `POST /asset_types/`. Partners rarely need `:all` unless DigiQuip operates links on their behalf across multiple tenants.
 
-**Read:** `asset_types` supports **implicit own-read** via the junction — listing types for an org uses org-scoped routes or filters; you do not always need `read:asset_types:all` if you only consume org-linked types.
+**Read:** **`GET`** on global asset type rows (and catalog **`brands` / `models`**) uses **`IMPLICIT_GLOBAL_READ_DIMENSIONS`** — no Logto read scopes. Org **portfolio** routes still respect junction membership. **`read:asset_types:own`** / **`:all`** matter for org-scoped list/write flows, not for basic catalog discovery.
 
-Manuals/documents attach to **asset types** (and assets). A type that exists globally but is **not** linked to your org may still be wrong for product UX — always plan **create + org link** for new merke/modell pairs.
+Manuals/documents attach to **asset types** (and assets). Upload uses **`create:asset_types:own`** (parent-gate); read uses implicit **`read:documents:own`**. See **`registry-documents`**. A type that exists globally but is **not** linked to your org may still be wrong for product UX — always plan **create + org link** for new merke/modell pairs.
 
 ## Recommended scopes (M2M)
 
 | Need | Scope |
 | ---- | ----- |
-| Catalog brand/model **read** (`GET /brands/`, `GET …/models/`) | **None** — implicit global read for any authenticated token |
-| Asset types | `read:asset_types:own` or `read:asset_types:all` as onboarding lists |
-| Create type after catalog match | `create:asset_types:own` or `:all` when allowed |
+| Catalog brand/model/type **read** (`GET /brands/`, models, global type row) | **None** — implicit global read for any authenticated token |
+| Org asset type portfolio / writes | `read:asset_types:own` or `:all` as DigiQuip lists; `create:asset_types:own` typical for partners |
+| Manuals on asset type | `create:asset_types:own` (+ optional `update|delete:asset_types:own`); not `create:documents:all` |
 
 **Do not request** `read:brands:all`, `read:models:all`, `create:brands:all`, `update:brands:all`, or similar for partner integrations—catalog **read** does not require Logto read scopes; **writes** are not issued on M2M.
 
@@ -135,6 +135,7 @@ Use helpers for quick match/preview when you already have brand + model text. Fo
 
 ## Related
 
+- **`registry-documents`** — upload/list manuals and files (PR #1504 parent-gate)
 - **`registry-assets`** — assets, identifiers, fleet listing
 - **`registry-m2m`** — token, OpenAPI-first workflow
 - **`registry-m2m/scopes.md`** — `:own` / `:all`, brands/models read-only for partners

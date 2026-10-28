@@ -134,11 +134,12 @@ create:assets:all
 
 | Scope | When |
 | ----- | ---- |
-| *(none for catalog read)* | `GET /brands/` and model lists — any authenticated token; see **`registry-catalog-and-asset-types`** |
-| `read:asset_types:own` or `read:asset_types:all` | Resolve/list asset types after brand/model are known |
-| `create:asset_types:all` or `:own` | `POST /asset_types` when allowed—after **`registry-catalog-and-asset-types`** search rules |
+| *(none for catalog read)* | `GET /brands/`, models, and global asset type reads — any authenticated token; see **`registry-catalog-and-asset-types`** |
+| `create:asset_types:all` or `:own` | `POST /asset_types` and org link; parent-gates manual upload on types — see **`registry-catalog-and-asset-types`** |
+| *(none for document read)* | Org-scoped document metadata/lists — implicit **`read:documents:own`**; see **`registry-documents`** |
+| `update:asset_types:own` / `delete:asset_types:own` | Optional: patch/delete org-scoped uploads without `*:documents:all` |
 
-Asset types use organization junction tenancy (`:own` is valid). They are separate from the asset row.
+Asset types use organization junction tenancy for **writes** and org portfolio routes. The asset row has no org owner.
 
 ### Broader access (unusual for a single customer)
 
@@ -178,8 +179,13 @@ When a call returns **403**, check identifier scopes and `allowed_organizations`
 | **Actions** | `organization_id` on the action (with documented edge cases) |
 | **Assets** | **Identifiers** (especially `internal_number`), not owner on asset |
 
+## Documents on assets
+
+Upload and list files with **`POST /assets/{id}/documents`** and **`GET /assets/{id}/documents`**. Requires **`create:assets:all`** for nested upload (no `create:documents:all` for partners). Set **`organization_id`** on uploads for tenant-scoped files. Full rules: **`registry-documents/SKILL.md`**.
+
 ## Related
 
+- **`registry-documents`** — manuals and files on assets / asset types (implicit read, parent-gate writes)
 - **`registry-catalog-and-asset-types`** — merke/modell catalog, asset type resolution, identity session funnel
 - **`registry-m2m`** — token, scopes, OpenAPI-first workflow
 - **`registry-m2m/reference.md`** — environment URLs

@@ -4,6 +4,18 @@ All notable changes to integration skills and templates in this repository are d
 
 ## Unreleased
 
+## 0.3.3 — 2026-10-28
+
+### Added
+
+- **`registry-documents`** skill: implicit **`read:documents:own`**; nested create/update/delete parent-gates on **`assets`** / **`asset_types`** (Registry PR [#1504](https://github.com/digiquip/dq-registry/pull/1504)); partner scope checklist; multipart and manual upload rules.
+
+### Changed
+
+- **`registry-m2m/scopes.md`**: **`documents`** in implicit own read; **`asset_types`** in global catalog read with brands/models; documents dimension table row; parent-gate vs `create:documents:all`.
+- **`registry-m2m/SKILL.md`**, **`registry-assets`**, **`registry-catalog-and-asset-types`**: cross-links and scope tables aligned with parent-gate documents and implicit global **`asset_types`** read.
+- **`templates/customer-onboarding.md`**: fleet scopes **`read|create:assets:all`** only (no partner asset update/delete); documents block without `*:documents:*`.
+
 ## 0.3.2 — 2026-10-27
 
 ### Changed

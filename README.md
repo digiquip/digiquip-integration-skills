@@ -11,6 +11,7 @@ Agent skills and onboarding templates for integrating with DigiQuip APIs. This r
 | [`.agents/skills/registry-assets/`](.agents/skills/registry-assets/) | Assets: global equipment records, org access via identifiers |
 | [`.agents/skills/registry-digiquip-qr-nfc/`](.agents/skills/registry-digiquip-qr-nfc/) | DigiQuip QR/NFC labels, `digiquip_qr`, landing page licensing |
 | [`.agents/skills/registry-catalog-and-asset-types/`](.agents/skills/registry-catalog-and-asset-types/) | Shared brand/model catalog (M2M read-only), asset type resolution, identity session funnel |
+| [`.agents/skills/registry-documents/`](.agents/skills/registry-documents/) | Documents on assets and asset types (implicit read, parent-gate writes) |
 | [`templates/customer-onboarding.md`](templates/customer-onboarding.md) | Per-customer checklist (scopes, orgs, environments)—fill in locally; do not commit secrets |
 | [`examples/env.example`](examples/env.example) | Environment variable names for M2M credentials |
 
@@ -46,7 +47,7 @@ Token endpoint and M2M setup: [Machine-to-machine access](https://digiquip.no/en
 
 ## Versioning
 
-Current release: **v0.3.2** (see [CHANGELOG.md](CHANGELOG.md)).
+Current release: **v0.3.3** (see [CHANGELOG.md](CHANGELOG.md)).
 
 Tag releases when integration guidance changes (scope model, auth URLs, or breaking API conventions). Pin your integration project to a tag when you need stable agent instructions.
 
